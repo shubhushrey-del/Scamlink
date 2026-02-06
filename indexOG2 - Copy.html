@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Forever Starts Here</title>
+
+  <!-- PREMIUM FONTS -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #ffd6e8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Poppins", sans-serif;
+      overflow: hidden;
+    }
+
+    /* CARD */
+    .card {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      text-align: center;
+      width: 320px;
+      z-index: 2;
+    }
+
+    .cat {
+      width: 160px;
+      border-radius: 15px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin: 15px 0;
+      font-family: "Playfair Display", serif;
+      font-size: 26px;
+      letter-spacing: 0.5px;
+    }
+
+    .buttons {
+      margin-top: 20px;
+      position: relative;
+      height: 60px;
+    }
+
+    button {
+      padding: 10px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: "Poppins", sans-serif;
+      font-weight: 500;
+    }
+
+    #yes {
+      background: #ff4d88;
+      color: white;
+    }
+
+    #no {
+      background: #ccc;
+      position: absolute;
+      left: 120px;
+    }
+
+    /* HEART RAIN */
+    .heart {
+      position: fixed;
+      top: -20px;
+      color: #ff4d88;
+      pointer-events: none;
+      z-index: 1;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* FULLSCREEN */
+    .fullscreen {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      overflow: hidden;
+      background: black;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+    }
+
+    /* BLURRED BACKGROUND */
+    .slide .bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: blur(25px);
+      transform: scale(1.1);
+    }
+
+    /* FOREGROUND IMAGE */
+    .slide img {
+      position: relative;
+      z-index: 2;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      margin: auto;
+      display: block;
+      animation: zoomSelfie 18s ease-in-out forwards;
+    }
+
+    @keyframes zoomSelfie {
+      from { transform: scale(1); }
+      to { transform: scale(1.04); }
+    }
+
+    .overlay-text {
+      position: absolute;
+      bottom: 12%;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-family: "Playfair Display", serif;
+      font-size: 46px;
+      letter-spacing: 1px;
+      text-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      z-index: 10;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- CARD -->
+  <div class="card" id="card">
+    <img src="pig.jpg" class="cat" alt="Cute pigs">
+    <h2>Will you be my Valentine?</h2>
+
+    <div class="buttons">
+      <button id="yes">Yes</button>
+      <button id="no">No</button>
+    </div>
+  </div>
+
+  <!-- MUSIC -->
+  <audio id="bg-music" src="music.mp3" preload="auto"></audio>
+
+  <script>
+    const yesBtn = document.getElementById("yes");
+    const noBtn = document.getElementById("no");
+    const card = document.getElementById("card");
+    const music = document.getElementById("bg-music");
+
+    let scale = 1;
+    let heartInterval;
+    let slideshowInterval;
+
+    const photos = [
+      "photo1.jpg",
+      "photo2.jpg",
+      "photo3.jpg",
+      "photo4.jpg",
+      "photo5.jpg",
+      "photo6.jpg",
+      "photo7.jpg"
+    ];
+
+    noBtn.addEventListener("mouseover", () => {
+      scale -= 0.08;
+      if (scale < 0.4) scale = 0.4;
+      noBtn.style.transform =
+        `translate(${Math.random() * 200}px, ${Math.random() * 40}px) scale(${scale})`;
+    });
+
+    yesBtn.addEventListener("click", () => {
+      yesBtn.disabled = true;
+      noBtn.style.display = "none";
+
+      // HEART RAIN
+      heartInterval = setInterval(() => {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.innerHTML = "♥";
+        heart.style.left = Math.random() * window.innerWidth + "px";
+        heart.style.fontSize = 12 + Math.random() * 20 + "px";
+        heart.style.animationDuration = 4 + Math.random() * 4 + "s";
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 8000);
+      }, 250);
+
+      setTimeout(() => {
+        clearInterval(heartInterval);
+        card.remove();
+
+        const fullscreen = document.createElement("div");
+        fullscreen.className = "fullscreen";
+
+        photos.forEach((src, i) => {
+          const slide = document.createElement("div");
+          slide.className = "slide" + (i === 0 ? " active" : "");
+
+          slide.innerHTML = `
+            <div class="bg" style="background-image:url('${src}')"></div>
+            <img src="${src}">
+          `;
+          fullscreen.appendChild(slide);
+        });
+
+        fullscreen.innerHTML += `
+          <div class="overlay-text">Forever starts here ❤️</div>
+        `;
+
+        document.body.appendChild(fullscreen);
+
+        // MUSIC
+        music.volume = 0.25;
+        music.play();
+
+        // SLIDESHOW
+        let index = 0;
+        const slides = document.querySelectorAll(".slide");
+
+        slideshowInterval = setInterval(() => {
+          slides[index].classList.remove("active");
+          index++;
+          if (index < slides.length) {
+            slides[index].classList.add("active");
+          }
+        }, 6000);
+
+        music.addEventListener("ended", () => {
+          clearInterval(slideshowInterval);
+        });
+
+      }, 2500);
+    });
+  </script>
+
+</body>
+</html>
